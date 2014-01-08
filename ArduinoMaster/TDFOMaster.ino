@@ -4,19 +4,12 @@
 #include <TDFBO.h>
 
 #define NODEID        1    //unique for each node on same network
-#define NETWORKID     16  //the same on all nodes that talk to each other
-#define FREQUENCY     RF69_915MHZ
 
-#define LED           9  // Moteinos have LEDs on D9
-#define SERIAL_BAUD   115200
-#define SPAM_NODE     99   //This is the node we send all of our power checks too. 
-                           // All the slaves will be in promiscous mode and get these
-                           // but that node will never be listening.
 #define TRANSMITPERIOD 100 //How often do we spam our network?  10 times a second seems good.  Should be quick enough, unless those
                            //slaves are being chatty.
 
 unsigned long lastPeriod = -1;
-
+int barPins[] = {3, 5, 6, 9, 10};
 RFM69 radio;
 
 void Blink(byte PIN, int DELAY_MS)
@@ -46,10 +39,47 @@ void loop() {
 
          Serial.print("Node [");
          Serial.print(radio.SENDERID);
-         Serial.print("] Strength: ");
-         Serial.println(theData.avgStrength);
+         Serial.print("] Strength: [");
+         Serial.print(theData.avgStrength);
 
          //TODO: Adjust information for node radio.SENDERID
+         //To make this photogenic we're going to have to pick some variables
+         // RIGHT NEXT STORE == -26
+         // TOO FAR == 100
+         // let's scale it between those too
+         
+         int topVal = constrain(theData.avgStrength, -25, -100);
+         int percent = map(theData.avgStrength, -100, -25 , 0, 100);
+         Serial.print("] Mapped to [");
+         Serial.print(percent);
+         Serial.println("]");
+
+         // Going to have 5 LED's
+         //BRUTE FORCE
+         int finalPin = 0;
+         int finalTally = 0;
+         if(percent > 80){
+            //Light up 1-4
+            finalTally = percent - 80;
+            finalPin = 4;
+         } else if (percent > 60){
+            //light up 1-3
+            finalTally = percent - 60;
+            finalPin = 3;
+         } else if (percent > 40){
+            //light up 1-2
+            finalTally = percent -40;
+            finalPin = 2;
+         } else if (percent > 20){
+            //light up 1
+            finalTally = percent - 20;
+            finalPin = 1;
+         } else {
+            finalTall = percent;
+            finalPin = 0;
+         }
+         //light up final pin with final tally mapped from 0, 1023
+         
       }
 
       if (radio.ACK_REQUESTED){
