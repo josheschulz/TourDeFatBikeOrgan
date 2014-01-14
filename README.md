@@ -15,3 +15,10 @@ Arduino Master - The arduino master is going to sit and collect data on how far 
 Arduino Slaves - The arduino slaves need to figure out how far away they are and let the master know.
 
 Music Player - The music player needs to adjust the track volumes and play the music.
+
+Notes
+=====
+
+1/13/2014 - Played around with the code some today.  There's a delicate balance between responsiveness and smoothness.  
+The place it's at now (average every 100ms, broadcast ever 250, take 50 samples) i get a pretty good mixture of both, but
+i'm not entirely sure that it's going to work when we're moving faster.  We'll see.
