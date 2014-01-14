@@ -1,5 +1,7 @@
 BOARD_TAG    = uno
 MONITOR_PORT = /dev/cu.usbserial-DA00EIRF
+#MONITOR_PORT = /dev/tty.usbserial-A702ZNO6
+
 ARDUINO_SKETCHBOOK = /Users/jschulz/Documents/Arduino/
 ARDUINO_LIBS = RFM69 SPI SPIFlash TDFBO
 MONITOR_BAUDRATE = 115200

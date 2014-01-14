@@ -1,15 +1,14 @@
 #include <RFM69.h> 
 #include <TDFBO.h>
-#include <FrequencyTimer2.h>
 
 #define NODEID        2    //unique for each node on same network
 
-int TRANSMITPERIOD = 500; //transmit a packet to gateway so often (in ms)
+int TRANSMITPERIOD = 250; //transmit a packet to gateway so often (in ms)
                            //Half a second right now, we should be seeing a running average around
                            //10 seconds.  Don't need to update all that often and if we're too chatty then 
                            //the master is going to struggle to keep up (is it? no idea.  Should run that experiment)
 
-#define SAMPLE_SIZE  100    //First try was at 100, but it was slow to respond.  Don't want it jumping all around but want
+#define SAMPLE_SIZE  50    //First try was at 100, but it was slow to respond.  Don't want it jumping all around but want
                            // it clear what the cause is
 RFM69 radio;
 
@@ -26,18 +25,8 @@ void Blink(byte PIN, int DELAY_MS)
   digitalWrite(PIN,LOW);
 }
 
-volatile bool TransmitNow = false;
-void ToggleTransmit(){
-   TransmitNow = true;
-}
-
 void setup() {
    Serial.begin(SERIAL_BAUD);
-
-   pinMode(FREQUENCYTIMER2_PIN, OUTPUT);
-   FrequencyTimer2::setPeriod(TRANSMITPERIOD * 1000); //convert to milliseconds
-   FrequencyTimer2::setOnOverflow(ToggleTransmit);
-   FrequencyTimer2::enable();
 
    radio.initialize(FREQUENCY,NODEID,NETWORKID);
    radio.setHighPower();
@@ -51,16 +40,19 @@ void setup() {
 
 void loop() {
    if (radio.receiveDone()){
+      /*
       Serial.print("WE GOT SOMETHING FOR [");
       Serial.print(radio.TARGETID);
       Serial.println("]");
+      */
       //We're listening for anything, check to see if it's for something we want to hear about
       if(radio.TARGETID == SPAM_NODE){
          //This is a broadcast message to everybody.  We use this to measure signal strength,
          //TODO:  Check RSSI and make sure it's valid.  We get some funky readings from this.
          Serial.print("Received RSSI [");
          Serial.print(radio.RSSI);
-         Serial.println("]");
+         Serial.print("],");
+         Serial.println(radio.RSSI);
          signalSamples[currentSample] = radio.RSSI;
          currentSample++;
          if(currentSample >= SAMPLE_SIZE){
@@ -89,10 +81,12 @@ void loop() {
          Serial.print(radio.TARGETID);
          Serial.println("]");
       }
-      Serial.println();
+      //Serial.println();
    }
   
-   if(TransmitNow){
+   unsigned int currPeriod = millis()/TRANSMITPERIOD;
+   if (currPeriod != lastPeriod){
+      lastPeriod=currPeriod;
 
       //Step 1: figure out the average
       //Step 2: Let somebody know
@@ -117,15 +111,15 @@ void loop() {
 
       SignalStrengthPing reading;
       reading.avgStrength = avgSignal;
-     // Serial.print("AVG: [");
-     // Serial.print(avgSignal);
-
+      /*
+      Serial.print("AVG: [");
+      Serial.print(avgSignal);
+      */
       if(radio.sendWithRetry(GATEWAYID, (const void*)(&reading), sizeof(reading), 2,30 )){
-      //   Serial.println("] [SUCCESS]"); 
+      //    Serial.println("] [SUCCESS]"); 
       } else {
-       //  Serial.println("] [FAILURE]");       
+      //   Serial.println("] [FAILURE]");       
       }
-      TransmitNow = false;   
   }
 }
 
