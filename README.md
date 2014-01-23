@@ -14,10 +14,12 @@ Arduino Master - The arduino master is going to sit and collect data on how far 
 
 Arduino Slaves - The arduino slaves need to figure out how far away they are and let the master know.
 
-Music Player - The music player needs to adjust the track volumes and play the music.
+Music Player - The music player needs to adjust the track volumes and play the music.  Raspberry pi attached to the master motino.  Using pygame mixer to control the audio.  It'll read off of serial.
 
 Notes
 =====
+
+1/22/2014 - Cleaned up the output from the master in preparation for reading it from the pi
 
 1/13/2014 - Played around with the code some today.  There's a delicate balance between responsiveness and smoothness.  
 The place it's at now (average every 100ms, broadcast ever 250, take 50 samples) i get a pretty good mixture of both, but
