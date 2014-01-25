@@ -24,11 +24,11 @@ void PowerDown(period_t p){
       TIMER2_OFF 
       TIMER1_OFF
       TIMER0_ON - This controls the millis() call.  I want it around.
-      SPI_OFF - Serial transfer.  
+      SPI_ON - Serial transfer.  
       USART0_OFF - Another Serial
       TWI_OFF 
    */
-   LowPower.idle(p, ADC_OFF, TIMER2_OFF,TIMER1_OFF, TIMER0_ON, SPI_OFF, USART0_OFF, TWI_OFF);
+   LowPower.idle(p, ADC_OFF, TIMER2_OFF,TIMER1_OFF, TIMER0_ON, SPI_ON, USART0_OFF, TWI_OFF);
 }
 //TODO: Move this into an object so I can reuse it.
 void Blink(byte PIN, period_t DELAY_MS)
