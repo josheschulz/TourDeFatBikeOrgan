@@ -15,7 +15,7 @@
                            // but that node will never be listening.
 
 
-typedef enum MessageType{
+enum MessageType{
    Debug,
    SignalStrength   
 };

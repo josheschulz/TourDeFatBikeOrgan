@@ -1,9 +1,10 @@
 #include <RFM69.h> 
 #include <TDFBO.h>
+#include <LowPower.h>
 
 #define NODEID        2    //unique for each node on same network
 
-int TRANSMITPERIOD = 250; //transmit a packet to gateway so often (in ms)
+int TRANSMITPERIOD = 500; //transmit a packet to gateway so often (in ms)
                            //Half a second right now, we should be seeing a running average around
                            //10 seconds.  Don't need to update all that often and if we're too chatty then 
                            //the master is going to struggle to keep up (is it? no idea.  Should run that experiment)
@@ -16,12 +17,25 @@ unsigned long lastPeriod = -1;
 int signalSamples[SAMPLE_SIZE];  //We take 100 samples
 int currentSample = 0;
 
+void PowerDown(period_t p){
+   //Common library so I can set everything the same ever time
+   /* 
+      ADC_OFF Analog to Digital Converter Off
+      TIMER2_OFF 
+      TIMER1_OFF
+      TIMER0_ON - This controls the millis() call.  I want it around.
+      SPI_OFF - Serial transfer.  
+      USART0_OFF - Another Serial
+      TWI_OFF 
+   */
+   LowPower.idle(p, ADC_OFF, TIMER2_OFF,TIMER1_OFF, TIMER0_ON, SPI_OFF, USART0_OFF, TWI_OFF);
+}
 //TODO: Move this into an object so I can reuse it.
-void Blink(byte PIN, int DELAY_MS)
+void Blink(byte PIN, period_t DELAY_MS)
 {
   pinMode(PIN, OUTPUT);
   digitalWrite(PIN,HIGH);
-  delay(DELAY_MS);
+   PowerDown(DELAY_MS);
   digitalWrite(PIN,LOW);
 }
 
@@ -34,6 +48,7 @@ void setup() {
                            //more reliable power rating... yes it is.  Because you want the one with the reliable
                            //power broadcasting, not listening
    radio.encrypt(0);
+   
    delay(2000);  //Pause for a second...
    Serial.println("Beginning Transmission");
  }
@@ -70,6 +85,7 @@ void loop() {
          //Only ACK if it was too us 
          if (radio.ACK_REQUESTED){
             radio.sendACK();
+            PowerDown(SLEEP_15MS);
             delay(10); 
          }
       } else if(radio.TARGETID == GATEWAYID) {
@@ -120,6 +136,8 @@ void loop() {
       } else {
       //   Serial.println("] [FAILURE]");       
       }
+      Blink(9, SLEEP_120MS);
   }
+   PowerDown(SLEEP_60MS);
 }
 
