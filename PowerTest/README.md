@@ -14,3 +14,7 @@ Interestingly turning off the master doesn't affect the current much.  It's the 
 No... Something is wrong with my measurements, because stopping all transmiting and recieving did nothing.
 
 Turning the radio off though... drops me down to 7mA.
+
+Making that loop nothing but an 8second powerdown sleep and usage goes to nothing (.08mA).
+
+So 10mA to operate the radio.  7mA to run the loop.
