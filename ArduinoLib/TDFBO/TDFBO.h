@@ -15,6 +15,11 @@
                            // but that node will never be listening.
 
 
+enum MessageType{
+   Debug,
+   SignalStrength   
+};
+
 typedef struct {
    int avgStrength;
 } SignalStrengthPing;
